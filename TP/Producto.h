@@ -13,13 +13,13 @@ protected:
 
 public:
     Producto(string nombre, double precio) : nombre(nombre), precioBase(precio) {}
-
     virtual ~Producto() {}
 
     string getNombre() const { return nombre; }
     double getPrecio() const { return precioBase; }
 
     virtual void mostrarDetalles() const = 0;
+    virtual Producto* clonar() const = 0;
 };
 
-#endif 
+#endif

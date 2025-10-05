@@ -5,7 +5,7 @@
 #include "Producto.h"
 #include "Ingrediente.h"
 #include <vector>
-
+#include <iostream>
 using namespace std;
 
 class Pizza : public Producto {
@@ -15,7 +15,7 @@ private:
     vector<Ingrediente> ingredientesAdicionales;
 
 public:
-    Pizza(string nombre, double precio, string tamano, string masa)
+    Pizza(const string& nombre, double precio, const string& tamano, const string& masa)
         : Producto(nombre, precio), tamano(tamano), tipoMasa(masa) {
     }
 
@@ -27,6 +27,10 @@ public:
         cout << "Pizza: " << nombre << " (" << tamano << ", Masa " << tipoMasa << ")" << endl;
         cout << "  Precio Base: S/ " << precioBase << endl;
     }
+
+    Producto* clonar() const override {
+        return new Pizza(*this);
+    }
 };
 
-#endif 
+#endif

@@ -116,8 +116,10 @@
     <ClInclude Include="Bebida.h" />
     <ClInclude Include="Cliente.h" />
     <ClInclude Include="Combo.h" />
+    <ClInclude Include="Factura.h" />
     <ClInclude Include="GestorArchivos.h" />
     <ClInclude Include="Ingrediente.h" />
+    <ClInclude Include="ListaEnlazada.h" />
     <ClInclude Include="MenuUI.h" />
     <ClInclude Include="Pedido.h" />
     <ClInclude Include="Pizza.h" />
@@ -125,8 +127,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppManager.cpp" />
+    <ClCompile Include="Cliente.cpp" />
     <ClCompile Include="GestorArchivos.cpp" />
     <ClCompile Include="MenuUI.cpp" />
+    <ClCompile Include="Pedido.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

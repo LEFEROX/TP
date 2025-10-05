@@ -1,11 +1,15 @@
-#include "AppManager.h" 
+#include "AppManager.h"
 #include "MenuUI.h"
 #include "GestorArchivos.h"
-#include <iostream>
+#include "Pedido.h"
 #include "Pizza.h"
 #include "Bebida.h"
 #include "Acompanamiento.h"
 #include "Combo.h"
+#include "Factura.h"
+#include <iostream>
+#include <string>
+
 using namespace std;
 
 AppManager::AppManager() : enEjecucion(false), clienteActual(nullptr) {
@@ -15,12 +19,10 @@ AppManager::AppManager() : enEjecucion(false), clienteActual(nullptr) {
 AppManager::~AppManager() {
     delete clienteActual;
     clienteActual = nullptr;
-
     for (Producto* p : catalogoProductos) {
         delete p;
     }
     catalogoProductos.clear();
-
 }
 
 void AppManager::iniciar() {
@@ -31,63 +33,175 @@ void AppManager::iniciar() {
             procesarOpcionMenuPrincipal(opcion);
         }
         else {
-            MenuUI::mostrarMensaje("Sesion cerrada para volver al menu principal.");
-            delete clienteActual;
-            clienteActual = nullptr;
+            bucleClienteLogueado();
         }
     }
 }
 
+void AppManager::bucleClienteLogueado() {
+    int opcion = MenuUI::mostrarMenuCliente(clienteActual->getNombreCompleto());
+    procesarOpcionMenuCliente(opcion);
+}
+
 void AppManager::procesarOpcionMenuPrincipal(int opcion) {
     switch (opcion) {
-    case 1:
-        procesarInicioSesion();
-        break;
-    case 2:
-        procesarRegistro();
-        break;
-    case 3:
-        procesarVerMenuConsulta();
-        break;
-    case 4:
-        procesarSalida();
-        break;
-    default:
-        MenuUI::mostrarMensaje("Opcion no valida. Por favor, intente de nuevo.");
-        break;
+    case 1: procesarInicioSesion(); break;
+    case 2: procesarRegistro(); break;
+    case 3: procesarVerMenuConsulta(); break;
+    case 4: procesarSalida(); break;
+    default: MenuUI::pausar("Opcion no valida. Por favor, intente de nuevo."); break;
+    }
+}
+
+void AppManager::procesarOpcionMenuCliente(int opcion) {
+    switch (opcion) {
+    case 1: procesarNuevoPedido(); break;
+    case 2: clienteActual->mostrarHistorialPedidos(); MenuUI::pausar(""); break;
+    case 3: procesarGestionarPerfil(); break;
+    case 4: procesarCerrarSesion(); break;
+    default: MenuUI::pausar("Opcion no valida."); break;
     }
 }
 
 void AppManager::procesarInicioSesion() {
     string dni = MenuUI::solicitarDNI();
     clienteActual = GestorArchivos::buscarClientePorDNI(dni);
-
-    if (clienteActual) {
-        MenuUI::mostrarMensaje("Bienvenido de nuevo, " + clienteActual->getNombreCompleto());
+    if (!clienteActual) {
+        MenuUI::pausar("Error: Cliente no encontrado.");
     }
     else {
-        MenuUI::mostrarMensaje("Error: Cliente no encontrado.");
+        auto pedidosPrevios = GestorArchivos::cargarPedidosPorCliente(dni);
+        for (auto p : pedidosPrevios) {
+            clienteActual->agregarPedido(p);
+        }
     }
 }
 
 void AppManager::procesarRegistro() {
     Cliente nuevoCliente = MenuUI::solicitarDatosNuevoCliente();
     if (GestorArchivos::guardarNuevoCliente(nuevoCliente)) {
-        MenuUI::mostrarMensaje("¡Registro exitoso! Ahora puede iniciar sesion.");
+        MenuUI::pausar("¡Registro exitoso! Ahora puede iniciar sesion.");
     }
     else {
-        MenuUI::mostrarMensaje("Error: No se pudo completar el registro.");
+        MenuUI::pausar("Error: No se pudo completar el registro.");
     }
 }
 
 void AppManager::procesarVerMenuConsulta() {
     MenuUI::mostrarCatalogo(catalogoProductos);
-    MenuUI::mostrarMensaje("Este es nuestro catalogo actual.");
+    MenuUI::pausar("");
+}
+
+void AppManager::procesarCerrarSesion() {
+    MenuUI::pausar("Sesion cerrada. ¡Vuelva pronto, " + clienteActual->getNombreCompleto() + "!");
+    delete clienteActual;
+    clienteActual = nullptr;
 }
 
 void AppManager::procesarSalida() {
     enEjecucion = false;
-    MenuUI::mostrarMensaje("Gracias por visitar Pizza Hut. ¡Vuelva pronto!");
+    MenuUI::pausar("Gracias por visitar Pizza Hut. ¡Vuelva pronto!");
+}
+
+void AppManager::procesarNuevoPedido() {
+    Pedido* pedidoActual = new Pedido(clienteActual);
+    bool finalizado = false;
+
+    while (!finalizado) {
+        MenuUI::mostrarCatalogo(catalogoProductos);
+        cout << "\n--- SU CARRITO ACTUAL ---" << endl;
+        pedidoActual->mostrarPedido();
+
+        cout << "\n--- OPCIONES DE PEDIDO ---" << endl;
+        cout << "Ingrese el # del producto para anadirlo." << endl;
+        cout << "[F] Finalizar pedido." << endl;
+        cout << "[X] Cancelar pedido." << endl;
+        cout << "Su eleccion: ";
+
+        string seleccion = MenuUI::leerEntrada();
+
+        if (seleccion.empty()) {
+            continue;
+        }
+
+        if (seleccion == "F" || seleccion == "f") {
+            if (pedidoActual->getTotal() > 0) {
+                finalizado = true;
+
+                clienteActual->agregarPedido(pedidoActual);
+                GestorArchivos::guardarPedido(*pedidoActual);
+
+                Factura::generarBoleta(*pedidoActual);
+                MenuUI::pausar("Pedido finalizado y enviado a la cocina. ¡Gracias!");
+            }
+            else {
+                MenuUI::pausar("El carrito esta vacio. No se puede finalizar el pedido.");
+            }
+        }
+        else if (seleccion == "X" || seleccion == "x") {
+            MenuUI::pausar("Pedido cancelado.");
+            delete pedidoActual;
+            finalizado = true;
+        }
+        else {
+            try {
+                int indice = stoi(seleccion) - 1;
+                if (indice >= 0 && indice < catalogoProductos.size()) {
+                    pedidoActual->agregarProducto(catalogoProductos[indice]->clonar());
+                }
+                else {
+                    MenuUI::pausar("Numero de producto fuera de rango.");
+                }
+            }
+            catch (const exception&) {
+                MenuUI::pausar("Entrada no valida. Por favor, ingrese un numero o una letra de opcion.");
+            }
+        }
+    }
+}
+
+
+void AppManager::procesarGestionarPerfil() {
+    bool salir = false;
+    while (!salir) {
+        limpiarPantalla();
+        cout << "=======================================" << endl;
+        cout << "      GESTIONAR PERFIL DE CLIENTE      " << endl;
+        cout << "=======================================" << endl;
+        cout << "Nombre: " << clienteActual->getNombreCompleto() << endl;
+        cout << "DNI:    " << clienteActual->getDNI() << endl;
+        cout << "Dir.:   " << clienteActual->getDireccion() << endl;
+        cout << "Tel.:   " << clienteActual->getTelefono() << endl;
+        cout << "---------------------------------------" << endl;
+        cout << "1. Cambiar direccion" << endl;
+        cout << "2. Cambiar telefono" << endl;
+        cout << "3. Volver al menu cliente" << endl;
+        cout << "---------------------------------------" << endl;
+        cout << "Seleccione una opcion: ";
+
+        string opcion = MenuUI::leerEntrada();
+
+        if (opcion == "1") {
+            cout << "Nueva direccion: ";
+            string nuevaDir = MenuUI::leerEntrada();
+            clienteActual->setDireccion(nuevaDir);
+            GestorArchivos::actualizarCliente(*clienteActual);
+            MenuUI::pausar("Direccion actualizada correctamente.");
+        }
+        else if (opcion == "2") {
+            cout << "Nuevo telefono: ";
+            string nuevoTel = MenuUI::leerEntrada();
+            clienteActual->setTelefono(nuevoTel);
+            GestorArchivos::actualizarCliente(*clienteActual);
+            MenuUI::pausar("Telefono actualizado correctamente.");
+        }
+        else if (opcion == "3") {
+            salir = true;
+        }
+        else {
+            MenuUI::pausar("Opcion no valida.");
+        }
+    }
 }
 
 void AppManager::inicializarCatalogo() {

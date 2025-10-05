@@ -1,9 +1,17 @@
 #include "MenuUI.h"
-#include "Producto.h" 
+#include "Producto.h"
 #include <iostream>
+#include <string>
 #include <limits>
 #include <cstdlib>
+
 using namespace std;
+
+string MenuUI::leerEntrada() {
+    string entrada;
+    getline(cin, entrada);
+    return entrada;
+}
 
 void limpiarPantalla() {
     system("cls");
@@ -21,53 +29,64 @@ int MenuUI::mostrarMenuPrincipal() {
     cout << "---------------------------------------" << endl;
     cout << "Por favor, elija una opcion: ";
 
-    int opcion;
-    cin >> opcion;
-
-    while (cin.fail()) {
-        cout << "Entrada invalida. Por favor, ingrese un numero." << endl;
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Por favor, elija una opcion: ";
-        cin >> opcion;
+    try {
+        return stoi(leerEntrada());
     }
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    return opcion;
+    catch (const exception&) {
+        return -1;
+    }
+}
+
+int MenuUI::mostrarMenuCliente(const string& nombreCliente) {
+    limpiarPantalla();
+    cout << "=======================================" << endl;
+    cout << "      Bienvenido, " << nombreCliente << "!" << endl;
+    cout << "=======================================" << endl;
+    cout << "1. Realizar Nuevo Pedido" << endl;
+    cout << "2. Ver Historial de Pedidos" << endl;
+    cout << "3. Gestionar Mi Perfil" << endl;
+    cout << "4. Cerrar Sesion" << endl;
+    cout << "---------------------------------------" << endl;
+    cout << "Por favor, elija una opcion: ";
+
+    try {
+        return stoi(leerEntrada());
+    }
+    catch (const exception&) {
+        return -1;
+    }
+}
+
+void MenuUI::pausar(const string& mensaje) {
+    cout << endl << ">> " << mensaje << endl;
+    cout << "Presione Enter para continuar...";
+    leerEntrada();
 }
 
 string MenuUI::solicitarDNI() {
     limpiarPantalla();
     cout << "--- INICIO DE SESION ---" << endl;
     cout << "Ingrese su DNI: ";
-    string dni;
-    getline(cin, dni);
-    return dni;
+    return leerEntrada();
 }
 
 Cliente MenuUI::solicitarDatosNuevoCliente() {
     limpiarPantalla();
     cout << "--- REGISTRO DE NUEVO CLIENTE ---" << endl;
     string dni, nombre, direccion, telefono;
-
     cout << "Ingrese DNI: ";
-    getline(cin, dni);
+    dni = leerEntrada();
     cout << "Ingrese Nombre Completo: ";
-    getline(cin, nombre);
+    nombre = leerEntrada();
     cout << "Ingrese Direccion de Entrega: ";
-    getline(cin, direccion);
+    direccion = leerEntrada();
     cout << "Ingrese Telefono: ";
-    getline(cin, telefono);
-
+    telefono = leerEntrada();
     return Cliente(dni, nombre, direccion, telefono);
 }
 
-void MenuUI::mostrarMensaje(const string& mensaje) {
-    cout << endl << ">> " << mensaje << endl;
-    cout << "Presione Enter para continuar...";
-    cin.get();
-}
-
 void MenuUI::mostrarCatalogo(const vector<Producto*>& catalogo) {
+    int i = 1;
     limpiarPantalla();
     cout << "=======================================" << endl;
     cout << "        NUESTRO CATALOGO DE PRODUCTOS  " << endl;
@@ -78,8 +97,9 @@ void MenuUI::mostrarCatalogo(const vector<Producto*>& catalogo) {
     }
     else {
         for (const Producto* p : catalogo) {
+            cout << "--- Producto #" << i++ << " ---" << endl;
             p->mostrarDetalles();
-            cout << "---------------------------------------" << endl;
         }
     }
+    cout << "=======================================" << endl;
 }

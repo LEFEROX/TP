@@ -1,8 +1,10 @@
 #pragma once
 #ifndef COMBO_H
 #define COMBO_H
+
 #include "Producto.h"
 #include <vector>
+#include <iostream>
 using namespace std;
 
 class Combo : public Producto {
@@ -10,7 +12,7 @@ private:
     vector<Producto*> productosIncluidos;
 
 public:
-    Combo(string nombre, double precio) : Producto(nombre, precio) {}
+    Combo(const string& nombre, double precio) : Producto(nombre, precio) {}
 
     ~Combo() {
     }
@@ -26,6 +28,10 @@ public:
             cout << "  - " << producto->getNombre() << endl;
         }
     }
+
+    Producto* clonar() const override {
+        return new Combo(*this);
+    }
 };
 
-#endif 
+#endif
