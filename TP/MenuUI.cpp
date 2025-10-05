@@ -4,6 +4,7 @@
 #include <string>
 #include <limits>
 #include <cstdlib>
+#include <algorithm> 
 
 using namespace std;
 
@@ -96,10 +97,21 @@ void MenuUI::mostrarCatalogo(const vector<Producto*>& catalogo) {
         cout << "El catalogo esta vacio por el momento." << endl;
     }
     else {
-        for (const Producto* p : catalogo) {
+        vector<Producto*> copia = catalogo;
+        sort(copia.begin(), copia.end(), [](Producto* a, Producto* b) {
+            return a->getPrecio() < b->getPrecio();
+            });
+
+        sort(copia.begin(), copia.end(), [](Producto* a, Producto* b) {
+            if (a->getPrecio() == b->getPrecio())
+                return a->getNombre() < b->getNombre();
+            return false;
+            });
+
+        for_each(copia.begin(), copia.end(), [&](Producto* p) {
             cout << "--- Producto #" << i++ << " ---" << endl;
             p->mostrarDetalles();
-        }
+            });
     }
     cout << "=======================================" << endl;
 }

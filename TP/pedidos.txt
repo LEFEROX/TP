@@ -1,2 +1,4 @@
 123,Pepperoni Lovers;Coca-Cola;Agua San Mateo;Inca Kola;Suprema,119.8
 123,Pepperoni Lovers;Coca-Cola;Combo Personal;Pan al Ajo,92.2
+123,Pepperoni Lovers;Coca-Cola;Combo Personal,79.3
+123,Pepperoni Lovers;Inca Kola;Coca-Cola;Alitas BBQ;Suprema,135.7

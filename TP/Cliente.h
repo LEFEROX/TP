@@ -20,15 +20,12 @@ private:
 public:
     Cliente(string dni, string nombre, string dir, string tel);
     ~Cliente();
-
     string getDNI() const;
     string getNombreCompleto() const;
     string getDireccion() const;
     string getTelefono() const;
-
     void setDireccion(const string& dir);
     void setTelefono(const string& tel);
-
     void agregarPedido(Pedido* pedido);
     void mostrarHistorialPedidos() const;
 };

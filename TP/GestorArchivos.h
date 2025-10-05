@@ -5,6 +5,7 @@
 #include "Pedido.h"
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -15,6 +16,8 @@ public:
     static bool actualizarCliente(const Cliente& cliente);
     static bool guardarPedido(const Pedido& pedido);
     static vector<Pedido*> cargarPedidosPorCliente(const string& dni);
+
+    static map<string, Cliente*> cargarClientesEnMapa();
 };
 
 #endif

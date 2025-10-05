@@ -1,9 +1,10 @@
 #include "GestorArchivos.h"
 #include "Pedido.h"
 #include "Producto.h"
-#include "Acompanamiento.h" 
+#include "Acompanamiento.h"
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -82,9 +83,9 @@ bool GestorArchivos::actualizarCliente(const Cliente& cliente) {
     ofstream archivoOut(NOMBRE_ARCHIVO_CLIENTES, ios::trunc);
     if (!archivoOut.is_open()) return false;
 
-    for (auto& l : lineas) {
+    for_each(lineas.begin(), lineas.end(), [&](const string& l) {
         archivoOut << l << endl;
-    }
+        });
 
     archivoOut.close();
     return true;
@@ -136,4 +137,36 @@ vector<Pedido*> GestorArchivos::cargarPedidosPorCliente(const string& dni) {
     }
     archivo.close();
     return pedidos;
+}
+
+map<string, Cliente*> GestorArchivos::cargarClientesEnMapa() {
+    map<string, Cliente*> clientes;
+    ifstream archivo(NOMBRE_ARCHIVO_CLIENTES);
+    string linea;
+
+    if (!archivo.is_open()) {
+        return clientes;
+    }
+
+    vector<string> lineas;
+    while (getline(archivo, linea)) {
+        lineas.push_back(linea);
+    }
+
+    for_each(lineas.begin(), lineas.end(), [&](const string& l) {
+        stringstream ss(l);
+        string dni, nombre, direccion, telefono;
+
+        getline(ss, dni, ',');
+        getline(ss, nombre, ',');
+        getline(ss, direccion, ',');
+        getline(ss, telefono, ',');
+
+        if (!dni.empty()) {
+            clientes[dni] = new Cliente(dni, nombre, direccion, telefono);
+        }
+        });
+
+    archivo.close();
+    return clientes;
 }

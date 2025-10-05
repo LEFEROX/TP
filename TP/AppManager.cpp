@@ -1,4 +1,4 @@
-#include "AppManager.h"
+ï»¿#include "AppManager.h"
 #include "MenuUI.h"
 #include "GestorArchivos.h"
 #include "Pedido.h"
@@ -9,6 +9,7 @@
 #include "Factura.h"
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -80,7 +81,7 @@ void AppManager::procesarInicioSesion() {
 void AppManager::procesarRegistro() {
     Cliente nuevoCliente = MenuUI::solicitarDatosNuevoCliente();
     if (GestorArchivos::guardarNuevoCliente(nuevoCliente)) {
-        MenuUI::pausar("¡Registro exitoso! Ahora puede iniciar sesion.");
+        MenuUI::pausar("Â¡Registro exitoso! Ahora puede iniciar sesion.");
     }
     else {
         MenuUI::pausar("Error: No se pudo completar el registro.");
@@ -88,19 +89,20 @@ void AppManager::procesarRegistro() {
 }
 
 void AppManager::procesarVerMenuConsulta() {
+    ordenarCatalogoPorPrecio();
     MenuUI::mostrarCatalogo(catalogoProductos);
     MenuUI::pausar("");
 }
 
 void AppManager::procesarCerrarSesion() {
-    MenuUI::pausar("Sesion cerrada. ¡Vuelva pronto, " + clienteActual->getNombreCompleto() + "!");
+    MenuUI::pausar("Sesion cerrada. Â¡Vuelva pronto, " + clienteActual->getNombreCompleto() + "!");
     delete clienteActual;
     clienteActual = nullptr;
 }
 
 void AppManager::procesarSalida() {
     enEjecucion = false;
-    MenuUI::pausar("Gracias por visitar Pizza Hut. ¡Vuelva pronto!");
+    MenuUI::pausar("Gracias por visitar Pizza Hut. Â¡Vuelva pronto!");
 }
 
 void AppManager::procesarNuevoPedido() {
@@ -132,7 +134,7 @@ void AppManager::procesarNuevoPedido() {
                 GestorArchivos::guardarPedido(*pedidoActual);
 
                 Factura::generarBoleta(*pedidoActual);
-                MenuUI::pausar("Pedido finalizado y enviado a la cocina. ¡Gracias!");
+                MenuUI::pausar("Pedido finalizado y enviado a la cocina. Â¡Gracias!");
             }
             else {
                 MenuUI::pausar("El carrito esta vacio. No se puede finalizar el pedido.");
@@ -159,7 +161,6 @@ void AppManager::procesarNuevoPedido() {
         }
     }
 }
-
 
 void AppManager::procesarGestionarPerfil() {
     bool salir = false;
@@ -214,4 +215,23 @@ void AppManager::inicializarCatalogo() {
     catalogoProductos.push_back(new Acompanamiento("Pan al Ajo", 12.90, "Clasico"));
     catalogoProductos.push_back(new Acompanamiento("Alitas BBQ", 18.90, "8 unidades"));
     catalogoProductos.push_back(new Combo("Combo Personal", 25.90));
+
+    int totalProductos = count_if(catalogoProductos.begin(), catalogoProductos.end(),
+        [](Producto* p) { return p != nullptr; });
+
+    cout << "Catalogo cargado con " << totalProductos << " productos.\n";
+}
+
+void AppManager::ordenarCatalogoPorPrecio() {
+    int n = catalogoProductos.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (catalogoProductos[j]->getPrecio() > catalogoProductos[j + 1]->getPrecio()) {
+                Producto* temp = catalogoProductos[j];
+                catalogoProductos[j] = catalogoProductos[j + 1];
+                catalogoProductos[j + 1] = temp;
+            }
+        }
+    }
+    cout << "Catalogo ordenado por precio (menor a mayor).\n";
 }

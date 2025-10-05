@@ -15,7 +15,7 @@ private:
     bool enEjecucion;
     Cliente* clienteActual;
     vector<Producto*> catalogoProductos;
-
+    void ordenarCatalogoPorPrecio();
     void procesarGestionarPerfil();
     void procesarOpcionMenuPrincipal(int opcion);
     void bucleClienteLogueado();
