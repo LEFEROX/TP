@@ -2,3 +2,11 @@
 123,Pepperoni Lovers;Coca-Cola;Combo Personal;Pan al Ajo,92.2
 123,Pepperoni Lovers;Coca-Cola;Combo Personal,79.3
 123,Pepperoni Lovers;Inca Kola;Coca-Cola;Alitas BBQ;Suprema,135.7
+123,Pepperoni Lovers;Inca Kola;Agua San Mateo;Alitas BBQ,75.3
+123,Pepperoni Lovers;Coca-Cola;Pan al Ajo;Combo Personal,92.2
+123,Pepperoni Lovers;Coca-Cola;Pan al Ajo;Suprema;Agua San Mateo,125.2
+123,Pepperoni Lovers;Inca Kola;Agua San Mateo;Alitas BBQ,75.3
+321,Pepperoni Lovers;Combo Personal;Alitas BBQ;Suprema;Inca Kola,154.1
+547,Pepperoni Lovers;Combo Personal;Coca-Cola,79.3
+123,Pepperoni Lovers;Alitas BBQ;Agua San Mateo;Combo Personal;Suprema,149.6
+123,Pepperoni Lovers;Combo Personal;Pepperoni Lovers;Coca-Cola;Coca-Cola;Suprema;Combo Personal,214.5

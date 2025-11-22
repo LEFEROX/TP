@@ -14,16 +14,26 @@
 using namespace std;
 
 AppManager::AppManager() : enEjecucion(false), clienteActual(nullptr) {
+    tablaClientes = new HashTable<string, Cliente*>(101);
+
     inicializarCatalogo();
+    cargarDatosIniciales(); 
 }
 
 AppManager::~AppManager() {
-    delete clienteActual;
     clienteActual = nullptr;
+
     for (Producto* p : catalogoProductos) {
         delete p;
     }
     catalogoProductos.clear();
+
+    if (tablaClientes) {
+        tablaClientes->recorrer([](Cliente* c) {
+            delete c;
+            });
+        delete tablaClientes; 
+    }
 }
 
 void AppManager::iniciar() {
@@ -37,6 +47,11 @@ void AppManager::iniciar() {
             bucleClienteLogueado();
         }
     }
+}
+
+void AppManager::cargarDatosIniciales() {
+    GestorArchivos::cargarClientesEnHash(*tablaClientes);
+    cout << "Sistema inicializado: Clientes cargados en memoria (Hash Table).\n";
 }
 
 void AppManager::bucleClienteLogueado() {
@@ -66,25 +81,40 @@ void AppManager::procesarOpcionMenuCliente(int opcion) {
 
 void AppManager::procesarInicioSesion() {
     string dni = MenuUI::solicitarDNI();
-    clienteActual = GestorArchivos::buscarClientePorDNI(dni);
+
+    clienteActual = tablaClientes->buscar(dni);
+
     if (!clienteActual) {
-        MenuUI::pausar("Error: Cliente no encontrado.");
+        MenuUI::pausar("Error: Cliente no encontrado o DNI incorrecto.");
     }
     else {
         auto pedidosPrevios = GestorArchivos::cargarPedidosPorCliente(dni);
+
         for (auto p : pedidosPrevios) {
             clienteActual->agregarPedido(p);
         }
+        MenuUI::pausar("Bienvenido de nuevo, " + clienteActual->getNombreCompleto());
     }
 }
 
 void AppManager::procesarRegistro() {
     Cliente nuevoCliente = MenuUI::solicitarDatosNuevoCliente();
+
     if (GestorArchivos::guardarNuevoCliente(nuevoCliente)) {
+
+        Cliente* clienteMemoria = new Cliente(
+            nuevoCliente.getDNI(),
+            nuevoCliente.getNombreCompleto(),
+            nuevoCliente.getDireccion(),
+            nuevoCliente.getTelefono()
+        );
+
+        tablaClientes->insertar(clienteMemoria->getDNI(), clienteMemoria);
+
         MenuUI::pausar("¡Registro exitoso! Ahora puede iniciar sesion.");
     }
     else {
-        MenuUI::pausar("Error: No se pudo completar el registro.");
+        MenuUI::pausar("Error: No se pudo completar el registro en el archivo.");
     }
 }
 
@@ -96,8 +126,7 @@ void AppManager::procesarVerMenuConsulta() {
 
 void AppManager::procesarCerrarSesion() {
     MenuUI::pausar("Sesion cerrada. ¡Vuelva pronto, " + clienteActual->getNombreCompleto() + "!");
-    delete clienteActual;
-    clienteActual = nullptr;
+    clienteActual = nullptr; 
 }
 
 void AppManager::procesarSalida() {
@@ -131,6 +160,7 @@ void AppManager::procesarNuevoPedido() {
                 finalizado = true;
 
                 clienteActual->agregarPedido(pedidoActual);
+
                 GestorArchivos::guardarPedido(*pedidoActual);
 
                 Factura::generarBoleta(*pedidoActual);
@@ -186,7 +216,9 @@ void AppManager::procesarGestionarPerfil() {
             cout << "Nueva direccion: ";
             string nuevaDir = MenuUI::leerEntrada();
             clienteActual->setDireccion(nuevaDir);
+
             GestorArchivos::actualizarCliente(*clienteActual);
+
             MenuUI::pausar("Direccion actualizada correctamente.");
         }
         else if (opcion == "2") {

@@ -5,6 +5,7 @@
 #include "Cliente.h"
 #include <vector>
 #include <string>
+#include "HashTable.h" // <--- NUEVO INCLUDE
 
 using namespace std;
 
@@ -15,6 +16,7 @@ private:
     bool enEjecucion;
     Cliente* clienteActual;
     vector<Producto*> catalogoProductos;
+    HashTable<string, Cliente*>* tablaClientes; 
     void ordenarCatalogoPorPrecio();
     void procesarGestionarPerfil();
     void procesarOpcionMenuPrincipal(int opcion);
@@ -27,6 +29,7 @@ private:
     void procesarCerrarSesion();
     void procesarSalida();
     void inicializarCatalogo();
+    void cargarDatosIniciales();
 
 public:
     AppManager();

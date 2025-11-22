@@ -118,6 +118,7 @@
     <ClInclude Include="Combo.h" />
     <ClInclude Include="Factura.h" />
     <ClInclude Include="GestorArchivos.h" />
+    <ClInclude Include="HashTable.h" />
     <ClInclude Include="Ingrediente.h" />
     <ClInclude Include="ListaEnlazada.h" />
     <ClInclude Include="MenuUI.h" />

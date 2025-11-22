@@ -2,7 +2,7 @@
 #define PEDIDO_H
 #include "Cliente.h"
 #include "Producto.h"
-#include "ListaEnlazada.h" 
+#include "ListaEnlazada.h"
 #include <string>
 #include <iostream>
 
@@ -13,7 +13,7 @@ private:
     Cliente* clienteAsociado;
     ListaEnlazada<Producto*> productos;
     double montoTotal;
-    string estado;
+   string estado;
 
 public:
     Pedido(Cliente* cliente);
@@ -24,6 +24,9 @@ public:
     const ListaEnlazada<Producto*>& getProductos() const;
     double getTotal() const;
     Cliente* getCliente() const;
+
+
+    void setTotal(double total) { montoTotal = total; }
 };
 
-#endif 
+#endif

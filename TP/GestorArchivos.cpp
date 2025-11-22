@@ -11,13 +11,11 @@ using namespace std;
 const string NOMBRE_ARCHIVO_CLIENTES = "clientes.txt";
 const string NOMBRE_ARCHIVO_PEDIDOS = "pedidos.txt";
 
-Cliente* GestorArchivos::buscarClientePorDNI(const string& dniBuscado) {
+void GestorArchivos::cargarClientesEnHash(HashTable<string, Cliente*>& tablaHash) {
     ifstream archivo(NOMBRE_ARCHIVO_CLIENTES);
     string linea;
 
-    if (!archivo.is_open()) {
-        return nullptr;
-    }
+    if (!archivo.is_open()) return;
 
     while (getline(archivo, linea)) {
         stringstream ss(linea);
@@ -28,16 +26,13 @@ Cliente* GestorArchivos::buscarClientePorDNI(const string& dniBuscado) {
         getline(ss, direccion, ',');
         getline(ss, telefono, ',');
 
-        if (dni == dniBuscado) {
-            archivo.close();
-            return new Cliente(dni, nombre, direccion, telefono);
+        if (!dni.empty()) {
+            Cliente* nuevoCliente = new Cliente(dni, nombre, direccion, telefono);
+            tablaHash.insertar(dni, nuevoCliente);
         }
     }
-
     archivo.close();
-    return nullptr;
 }
-
 bool GestorArchivos::guardarNuevoCliente(const Cliente& nuevoCliente) {
     ofstream archivo(NOMBRE_ARCHIVO_CLIENTES, ios::app);
     if (!archivo.is_open()) {
@@ -111,7 +106,6 @@ bool GestorArchivos::guardarPedido(const Pedido& pedido) {
 vector<Pedido*> GestorArchivos::cargarPedidosPorCliente(const string& dni) {
     ifstream archivo(NOMBRE_ARCHIVO_PEDIDOS);
     vector<Pedido*> pedidos;
-
     if (!archivo.is_open()) return pedidos;
 
     string linea;
@@ -121,24 +115,30 @@ vector<Pedido*> GestorArchivos::cargarPedidosPorCliente(const string& dni) {
 
         getline(ss, dniArchivo, ',');
         getline(ss, productosStr, ',');
-        getline(ss, totalStr, ',');
+        getline(ss, totalStr);
 
         if (dniArchivo == dni) {
-            Pedido* nuevoPedido = new Pedido(nullptr);
+            auto* nuevoPedido = new Pedido(nullptr);
+
+
             stringstream prodStream(productosStr);
             string prod;
-
             while (getline(prodStream, prod, ';')) {
                 nuevoPedido->agregarProducto(new Acompanamiento(prod, 0.0, ""));
+            }
+
+            try {
+                nuevoPedido->setTotal(stod(totalStr));
+            }
+            catch (...) {
+                nuevoPedido->setTotal(0.0);
             }
 
             pedidos.push_back(nuevoPedido);
         }
     }
-    archivo.close();
     return pedidos;
 }
-
 map<string, Cliente*> GestorArchivos::cargarClientesEnMapa() {
     map<string, Cliente*> clientes;
     ifstream archivo(NOMBRE_ARCHIVO_CLIENTES);
