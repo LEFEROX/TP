@@ -5,7 +5,7 @@
 #include "Cliente.h"
 #include <vector>
 #include <string>
-#include "HashTable.h" // <--- NUEVO INCLUDE
+#include "HashTable.h"
 
 using namespace std;
 
