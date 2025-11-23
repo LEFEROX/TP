@@ -13,6 +13,43 @@
 
 using namespace std;
 
+// ====================================================
+// =============== QUICK SORT INTEGRADO ===============
+// ====================================================
+
+void quickSort(vector<Producto*>& arr, int left, int right) {
+    if (left >= right) return;
+
+    double pivot = arr[(left + right) / 2]->getPrecio();
+    int i = left;
+    int j = right;
+
+    while (i <= j) {
+        while (arr[i]->getPrecio() < pivot) i++;
+        while (arr[j]->getPrecio() > pivot) j--;
+
+        if (i <= j) {
+            swap(arr[i], arr[j]);
+            i++;
+            j--;
+        }
+    }
+
+    if (left < j) quickSort(arr, left, j);
+    if (i < right) quickSort(arr, i, right);
+}
+
+void ordenarCatalogoPorPrecio_QuickSort(vector<Producto*>& arr) {
+    if (!arr.empty()) {
+        quickSort(arr, 0, arr.size() - 1);
+    }
+}
+
+// ====================================================
+// ================= FIN QUICK SORT ===================
+// ====================================================
+
+
 AppManager::AppManager() : enEjecucion(false), clienteActual(nullptr) {
     tablaClientes = new HashTable<string, Cliente*>(101);
 
@@ -31,7 +68,7 @@ AppManager::~AppManager() {
     if (tablaClientes) {
         tablaClientes->recorrer([](Cliente* c) {
             delete c;
-            });
+        });
         delete tablaClientes; 
     }
 }
@@ -255,15 +292,6 @@ void AppManager::inicializarCatalogo() {
 }
 
 void AppManager::ordenarCatalogoPorPrecio() {
-    int n = catalogoProductos.size();
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (catalogoProductos[j]->getPrecio() > catalogoProductos[j + 1]->getPrecio()) {
-                Producto* temp = catalogoProductos[j];
-                catalogoProductos[j] = catalogoProductos[j + 1];
-                catalogoProductos[j + 1] = temp;
-            }
-        }
-    }
-    cout << "Catalogo ordenado por precio (menor a mayor).\n";
+    ordenarCatalogoPorPrecio_QuickSort(catalogoProductos);
+    cout << "Catalogo ordenado por precio (QuickSort recursivo).\n";
 }
