@@ -25,4 +25,6 @@ add_executable(TP
         TP/Pedido.h
         TP/Pizza.h
         TP/Producto.h
-        TP/Source.cpp)
+        TP/Source.cpp
+        TP/GeneradorDataSet.h
+        TP/GeneradorDataSet.cpp)

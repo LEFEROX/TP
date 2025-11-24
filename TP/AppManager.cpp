@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include "GeneradorDataSet.h"
+
 
 using namespace std;
 
@@ -138,8 +140,17 @@ void AppManager::iniciar() {
 }
 
 void AppManager::cargarDatosIniciales() {
+    // Primero intentamos cargar lo que ya haya en clientes.txt
     GestorArchivos::cargarClientesEnHash(*tablaClientes);
-    cout << "Sistema inicializado: Clientes cargados en memoria (Hash Table).\n";
+
+    if (tablaClientes->getCantidad() == 0) {
+        // Si no hay clientes, generamos un data set de prueba
+        GeneradorDataSet::generarClientesDemo(*tablaClientes, 10000);
+        GeneradorDataSet::generarPedidosDemo(*tablaClientes, catalogoProductos, 1, 5);
+        cout << "Data set de prueba generado automaticamente (clientes + pedidos).\n";
+    } else {
+        cout << "Sistema inicializado: Clientes cargados en memoria (Hash Table).\n";
+    }
 }
 
 void AppManager::bucleClienteLogueado() {
@@ -159,11 +170,14 @@ void AppManager::procesarOpcionMenuPrincipal(int opcion) {
 
 void AppManager::procesarOpcionMenuCliente(int opcion) {
     switch (opcion) {
-    case 1: procesarNuevoPedido(); break;
-    case 2: clienteActual->mostrarHistorialPedidos(); MenuUI::pausar(""); break;
-    case 3: procesarGestionarPerfil(); break;
-    case 4: procesarCerrarSesion(); break;
-    default: MenuUI::pausar("Opcion no valida."); break;
+        case 1: procesarInicioSesion(); break;
+        case 2: procesarRegistro(); break;
+        case 3: procesarVerMenuConsulta(); break;
+        case 4: procesarVerClientesRegistrados(); break;
+        case 5: procesarSalida(); break;
+        default:
+            MenuUI::pausar("Opcion no valida. Por favor, intente de nuevo.");
+            break;
     }
 }
 
@@ -241,6 +255,39 @@ void AppManager::procesarVerMenuConsulta() {
 
     MenuUI::mostrarCatalogo(catalogoProductos);
     MenuUI::pausar("");
+}
+
+void AppManager::procesarVerClientesRegistrados() {
+    vector<Cliente*> clientes;
+
+    // Recorremos la HashTable y copiamos los punteros a un vector
+    tablaClientes->recorrer([&](Cliente* c) {
+        if (c) clientes.push_back(c);
+    });
+
+    if (clientes.empty()) {
+        MenuUI::pausar("No hay clientes registrados en el sistema.");
+        return;
+    }
+
+    // Opcional: ordenamos por DNI o nombre
+    sort(clientes.begin(), clientes.end(),
+         [](Cliente* a, Cliente* b) {
+             return a->getDNI() < b->getDNI();    // o getNombreCompleto()
+         });
+
+    limpiarPantalla();
+    cout << "========== CLIENTES REGISTRADOS ==========\n";
+    int i = 1;
+    for (Cliente* c : clientes) {
+        cout << i++ << ") DNI: " << c->getDNI() << "\n";
+        cout << "   Nombre: " << c->getNombreCompleto() << "\n";
+        cout << "   Direccion: " << c->getDireccion() << "\n";
+        cout << "   Telefono: " << c->getTelefono() << "\n";
+        cout << "-----------------------------------------\n";
+    }
+
+    MenuUI::pausar("Fin de la lista de clientes.");
 }
 
 

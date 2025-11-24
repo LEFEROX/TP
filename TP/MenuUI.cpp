@@ -26,7 +26,8 @@ int MenuUI::mostrarMenuPrincipal() {
     cout << "1. Iniciar Sesion" << endl;
     cout << "2. Registrar Nuevo Cliente" << endl;
     cout << "3. Ver Menu (Solo consulta)" << endl;
-    cout << "4. Salir" << endl;
+    cout << "4. Ver Clientes Registrados (Data set)" << endl;
+    cout << "5. Salir" << endl;
     cout << "---------------------------------------" << endl;
     cout << "Por favor, elija una opcion: ";
 

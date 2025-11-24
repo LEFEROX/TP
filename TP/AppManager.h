@@ -31,7 +31,7 @@ private:
     void procesarSalida();
     void inicializarCatalogo();
     void cargarDatosIniciales();
-
+    void procesarVerClientesRegistrados();
 
 public:
     AppManager();
