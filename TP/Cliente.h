@@ -4,6 +4,7 @@
 
 #include <string>
 #include "ListaEnlazada.h"
+#include <vector>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ private:
     string direccion;
     string telefono;
     ListaEnlazada<Pedido*> historialPedidos;
+    void mostrarHistorialPedidosRecursivo(const vector<Pedido*>& pedidos, int indice) const;
 
 public:
     Cliente(string dni, string nombre, string dir, string tel);

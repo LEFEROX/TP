@@ -26,15 +26,29 @@ void Cliente::agregarPedido(Pedido* pedido) {
 }
 
 void Cliente::mostrarHistorialPedidos() const {
-    auto pedidos = historialPedidos.obtenerTodos();
+    auto pedidos = historialPedidos.obtenerTodos();  // ListaEnlazada -> vector
+
     if (pedidos.empty()) {
         cout << "No tiene pedidos registrados.\n";
         return;
     }
+
     cout << "\n--- HISTORIAL DE PEDIDOS ---\n";
-    int i = 1;
-    for (auto p : pedidos) {
-        cout << i++ << ". ";
-        if (p) p->mostrarPedidoResumen();
+    // Llamada inicial a la función recursiva
+    mostrarHistorialPedidosRecursivo(pedidos, 0);
+}
+
+void Cliente::mostrarHistorialPedidosRecursivo(const vector<Pedido*>& pedidos, int indice) const {
+
+    if (indice >= static_cast<int>(pedidos.size())) {
+        return;
     }
+
+    cout << indice + 1 << ". ";
+    if (pedidos[indice]) {
+        pedidos[indice]->mostrarPedidoResumen();
+    }
+
+
+    mostrarHistorialPedidosRecursivo(pedidos, indice + 1);
 }

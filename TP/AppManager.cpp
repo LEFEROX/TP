@@ -13,9 +13,9 @@
 
 using namespace std;
 
-// ====================================================
-// =============== QUICK SORT INTEGRADO ===============
-// ====================================================
+
+//  QUICK SORT INTEGRADO
+
 
 void quickSort(vector<Producto*>& arr, int left, int right) {
     if (left >= right) return;
@@ -45,9 +45,60 @@ void ordenarCatalogoPorPrecio_QuickSort(vector<Producto*>& arr) {
     }
 }
 
-// ====================================================
+
 // ================= FIN QUICK SORT ===================
-// ====================================================
+
+
+
+//  MergeSort por NOMBRE
+
+void mergePorNombre(vector<Producto*>& arr, int left, int mid, int right) {
+    int i = left;
+    int j = mid + 1;
+    vector<Producto*> temp;
+    temp.reserve(right - left + 1);
+
+    while (i <= mid && j <= right) {
+
+        if (arr[i]->getNombre() <= arr[j]->getNombre()) {
+            temp.push_back(arr[i]);
+            i++;
+        } else {
+            temp.push_back(arr[j]);
+            j++;
+        }
+    }
+
+    while (i <= mid) {
+        temp.push_back(arr[i]);
+        i++;
+    }
+
+    while (j <= right) {
+        temp.push_back(arr[j]);
+        j++;
+    }
+
+
+    for (int k = left; k <= right; ++k) {
+        arr[k] = temp[k - left];
+    }
+}
+
+void mergeSortPorNombre(vector<Producto*>& arr, int left, int right) {
+    if (left >= right) return;  // caso base
+
+    int mid = left + (right - left) / 2;
+    mergeSortPorNombre(arr, left, mid);
+    mergeSortPorNombre(arr, mid + 1, right);
+    mergePorNombre(arr, left, mid, right);
+}
+
+void ordenarCatalogoPorNombre_MergeSort(vector<Producto*>& arr) {
+    if (!arr.empty()) {
+        mergeSortPorNombre(arr, 0, static_cast<int>(arr.size()) - 1);
+    }
+}
 
 
 AppManager::AppManager() : enEjecucion(false), clienteActual(nullptr) {
@@ -156,10 +207,42 @@ void AppManager::procesarRegistro() {
 }
 
 void AppManager::procesarVerMenuConsulta() {
-    ordenarCatalogoPorPrecio();
+    if (catalogoProductos.empty()) {
+        MenuUI::pausar("No hay productos en el catalogo.");
+        return;
+    }
+
+    cout << "=== Ver Menu de Productos ===\n";
+    cout << "1. Ordenar por PRECIO \n";
+    cout << "2. Ordenar por NOMBRE \n";
+    cout << "Opcion: ";
+
+    string entrada = MenuUI::leerEntrada();
+    int opcion = 0;
+
+    //Excepciones
+    try {
+        opcion = stoi(entrada);
+    } catch (...) {
+        opcion = 0;
+    }
+
+    switch (opcion) {
+        case 1:
+            ordenarCatalogoPorPrecio();
+            break;
+        case 2:
+            ordenarCatalogoPorNombre();
+            break;
+        default:
+            cout << "Opcion invalida. Se mostrara el catalogo sin reordenar.\n";
+            break;
+    }
+
     MenuUI::mostrarCatalogo(catalogoProductos);
     MenuUI::pausar("");
 }
+
 
 void AppManager::procesarCerrarSesion() {
     MenuUI::pausar("Sesion cerrada. ¡Vuelva pronto, " + clienteActual->getNombreCompleto() + "!");
@@ -294,4 +377,8 @@ void AppManager::inicializarCatalogo() {
 void AppManager::ordenarCatalogoPorPrecio() {
     ordenarCatalogoPorPrecio_QuickSort(catalogoProductos);
     cout << "Catalogo ordenado por precio (QuickSort recursivo).\n";
+}
+void AppManager::ordenarCatalogoPorNombre() {
+    ordenarCatalogoPorNombre_MergeSort(catalogoProductos);
+    cout << "Catalogo ordenado por nombre (MergeSort recursivo).\n";
 }

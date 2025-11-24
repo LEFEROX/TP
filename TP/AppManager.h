@@ -18,6 +18,7 @@ private:
     vector<Producto*> catalogoProductos;
     HashTable<string, Cliente*>* tablaClientes; 
     void ordenarCatalogoPorPrecio();
+    void ordenarCatalogoPorNombre();
     void procesarGestionarPerfil();
     void procesarOpcionMenuPrincipal(int opcion);
     void bucleClienteLogueado();
@@ -30,6 +31,7 @@ private:
     void procesarSalida();
     void inicializarCatalogo();
     void cargarDatosIniciales();
+
 
 public:
     AppManager();
